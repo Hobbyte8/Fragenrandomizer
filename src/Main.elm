@@ -7,11 +7,14 @@ module Main exposing (main)
 --
 
 import Browser
+import File exposing (File)
 import File.Download as Download
+import File.Select as Select
 import Html exposing (Html, button, div, td, text, tr)
 import Html.Attributes
 import Html.Events exposing (onClick)
 import List exposing (filter, foldr, indexedMap, map)
+import Task
 
 
 
@@ -28,7 +31,8 @@ main =
 
 
 type alias Model =
-    { questions : List Question
+    { fileOk : Bool
+    , questions : List Question
     , deletedQuestions : List Question
     , newQuestion : String
     }
@@ -40,7 +44,7 @@ type alias Question =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { questions = [], deletedQuestions = [], newQuestion = "" }, Cmd.none )
+    ( { questions = [], deletedQuestions = [], newQuestion = "", fileOk = True }, Cmd.none )
 
 
 
@@ -49,9 +53,12 @@ init _ =
 
 type Msg
     = Download
+    | Upload
     | Delete Int
     | Add String
     | Change String
+    | SQLLoaded File
+    | StringFromSQLLoaded String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,6 +75,9 @@ update msg model =
         Download ->
             ( model, download (sqlFromModel model) )
 
+        Upload ->
+            ( model, requestSQL )
+
         Add question ->
             ( { model
                 | questions = model.questions ++ [ question ]
@@ -82,6 +92,17 @@ update msg model =
               }
             , Cmd.none
             )
+
+        SQLLoaded file ->
+            ( model, read file )
+
+        StringFromSQLLoaded sql ->
+            case splitList (String.lines sql) of
+                Ok ( toDelete, toInsert ) ->
+                    ( { model | fileOk = True, questions = map getQuestion toInsert, deletedQuestions = map getQuestion toDelete }, Cmd.none )
+
+                Err _ ->
+                    ( { model | fileOk = False }, Cmd.none )
 
 
 deleteElementFromQuestionList : Int -> List Question -> List Question
@@ -109,10 +130,18 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick Download ] [ text "Download" ]
-        , Html.table [] (map tableEntryFromQuestion (indexedMap Tuple.pair model.questions) ++ [ newQuestion model ])
-        ]
+    let
+        content =
+            [ button [ onClick Download ] [ text "Download" ]
+            , button [ onClick Upload ] [ text "Upload" ]
+            , Html.table [] (map tableEntryFromQuestion (indexedMap Tuple.pair model.questions) ++ [ newQuestion model ])
+            ]
+    in
+    if model.fileOk == True then
+        div [] (Html.h1 [] [ text "Fragenrandomizer" ] :: content)
+
+    else
+        div [] (Html.h1 [] [ text "Fragenrandomizer" ] :: text "Die Datei hat leider nicht das richtige Format." :: content)
 
 
 tableEntryFromQuestion : ( Int, Question ) -> Html Msg
@@ -132,7 +161,40 @@ newQuestion model =
 
 
 
--- FILECREATION
+-- FILEUPLOAD
+
+
+requestSQL : Cmd Msg
+requestSQL =
+    Select.file [ "text/x-sql" ] SQLLoaded
+
+
+read : File -> Cmd Msg
+read file =
+    Task.perform StringFromSQLLoaded (File.toString file)
+
+
+splitList : List String -> Result String ( List String, List String )
+splitList lines =
+    let
+        listentry =
+            List.head (List.filter (\tuple -> String.contains "-- Insert" (Tuple.second tuple)) (List.indexedMap Tuple.pair lines))
+    in
+    case listentry of
+        Just tuple ->
+            Ok ( List.take (Tuple.first tuple) lines, List.filter (String.contains "DELETE") (List.drop (Tuple.first tuple + 1) lines) )
+
+        Nothing ->
+            Err "Falsches Format der Datei"
+
+
+getQuestion : String -> String
+getQuestion sql =
+    String.dropRight 3 (String.dropLeft 43 sql)
+
+
+
+-- FILECREATION DOWNLOAD
 
 
 type QuestionType
@@ -147,7 +209,7 @@ download sqlContent =
 
 sqlFromModel : Model -> String
 sqlFromModel model =
-    sqlFromList model.questions ToDelete ++ sqlFromList model.deletedQuestions ToDelete ++ sqlFromList model.questions ToInsert
+    sqlFromList model.deletedQuestions ToDelete ++ "-- Insert \n" ++ sqlFromList model.questions ToDelete ++ sqlFromList model.questions ToInsert
 
 
 sqlFromList : List Question -> QuestionType -> String

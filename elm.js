@@ -5326,7 +5326,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{deletedQuestions: _List_Nil, newQuestion: '', questions: _List_Nil},
+		{deletedQuestions: _List_Nil, fileOk: true, newQuestion: '', questions: _List_Nil},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5392,6 +5392,222 @@ var $author$project$Main$getElementFromQuestionList = F2(
 				},
 				A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, questionlist)));
 	});
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$String$dropRight = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3($elm$core$String$slice, 0, -n, string);
+	});
+var $author$project$Main$getQuestion = function (sql) {
+	return A2(
+		$elm$core$String$dropRight,
+		3,
+		A2($elm$core$String$dropLeft, 43, sql));
+};
+var $elm$core$String$lines = _String_lines;
+var $author$project$Main$StringFromSQLLoaded = function (a) {
+	return {$: 'StringFromSQLLoaded', a: a};
+};
+var $elm$file$File$toString = _File_toString;
+var $author$project$Main$read = function (file) {
+	return A2(
+		$elm$core$Task$perform,
+		$author$project$Main$StringFromSQLLoaded,
+		$elm$file$File$toString(file));
+};
+var $author$project$Main$SQLLoaded = function (a) {
+	return {$: 'SQLLoaded', a: a};
+};
+var $elm$file$File$Select$file = F2(
+	function (mimes, toMsg) {
+		return A2(
+			$elm$core$Task$perform,
+			toMsg,
+			_File_uploadOne(mimes));
+	});
+var $author$project$Main$requestSQL = A2(
+	$elm$file$File$Select$file,
+	_List_fromArray(
+		['text/x-sql']),
+	$author$project$Main$SQLLoaded);
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $author$project$Main$splitList = function (lines) {
+	var listentry = $elm$core$List$head(
+		A2(
+			$elm$core$List$filter,
+			function (tuple) {
+				return A2($elm$core$String$contains, '-- Insert', tuple.b);
+			},
+			A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, lines)));
+	if (listentry.$ === 'Just') {
+		var tuple = listentry.a;
+		return $elm$core$Result$Ok(
+			_Utils_Tuple2(
+				A2($elm$core$List$take, tuple.a, lines),
+				A2(
+					$elm$core$List$filter,
+					$elm$core$String$contains('DELETE'),
+					A2($elm$core$List$drop, tuple.a + 1, lines))));
+	} else {
+		return $elm$core$Result$Err('Falsches Format der Datei');
+	}
+};
 var $author$project$Main$ToDelete = {$: 'ToDelete'};
 var $author$project$Main$ToInsert = {$: 'ToInsert'};
 var $author$project$Main$sqlFromQuestion = F2(
@@ -5416,11 +5632,7 @@ var $author$project$Main$sqlFromList = F2(
 				questionlist));
 	});
 var $author$project$Main$sqlFromModel = function (model) {
-	return _Utils_ap(
-		A2($author$project$Main$sqlFromList, model.questions, $author$project$Main$ToDelete),
-		_Utils_ap(
-			A2($author$project$Main$sqlFromList, model.deletedQuestions, $author$project$Main$ToDelete),
-			A2($author$project$Main$sqlFromList, model.questions, $author$project$Main$ToInsert)));
+	return A2($author$project$Main$sqlFromList, model.deletedQuestions, $author$project$Main$ToDelete) + ('-- Insert \n' + (A2($author$project$Main$sqlFromList, model.questions, $author$project$Main$ToDelete) + A2($author$project$Main$sqlFromList, model.questions, $author$project$Main$ToInsert)));
 };
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -5442,6 +5654,8 @@ var $author$project$Main$update = F2(
 					model,
 					$author$project$Main$download(
 						$author$project$Main$sqlFromModel(model)));
+			case 'Upload':
+				return _Utils_Tuple2(model, $author$project$Main$requestSQL);
 			case 'Add':
 				var question = msg.a;
 				return _Utils_Tuple2(
@@ -5455,18 +5669,49 @@ var $author$project$Main$update = F2(
 									[question]))
 						}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'Change':
 				var changedQuestion = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{newQuestion: changedQuestion}),
 					$elm$core$Platform$Cmd$none);
+			case 'SQLLoaded':
+				var file = msg.a;
+				return _Utils_Tuple2(
+					model,
+					$author$project$Main$read(file));
+			default:
+				var sql = msg.a;
+				var _v1 = $author$project$Main$splitList(
+					$elm$core$String$lines(sql));
+				if (_v1.$ === 'Ok') {
+					var _v2 = _v1.a;
+					var toDelete = _v2.a;
+					var toInsert = _v2.b;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								deletedQuestions: A2($elm$core$List$map, $author$project$Main$getQuestion, toDelete),
+								fileOk: true,
+								questions: A2($elm$core$List$map, $author$project$Main$getQuestion, toInsert)
+							}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{fileOk: false}),
+						$elm$core$Platform$Cmd$none);
+				}
 		}
 	});
 var $author$project$Main$Download = {$: 'Download'};
+var $author$project$Main$Upload = {$: 'Upload'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$Main$Add = function (a) {
 	return {$: 'Add', a: a};
 };
@@ -5605,34 +5850,69 @@ var $author$project$Main$tableEntryFromQuestion = function (_v0) {
 			]));
 };
 var $author$project$Main$view = function (model) {
-	return A2(
+	var content = _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onClick($author$project$Main$Download)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Download')
+				])),
+			A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onClick($author$project$Main$Upload)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Upload')
+				])),
+			A2(
+			$elm$html$Html$table,
+			_List_Nil,
+			_Utils_ap(
+				A2(
+					$elm$core$List$map,
+					$author$project$Main$tableEntryFromQuestion,
+					A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, model.questions)),
+				_List_fromArray(
+					[
+						$author$project$Main$newQuestion(model)
+					])))
+		]);
+	return model.fileOk ? A2(
 		$elm$html$Html$div,
 		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$Download)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Download')
-					])),
-				A2(
-				$elm$html$Html$table,
+		A2(
+			$elm$core$List$cons,
+			A2(
+				$elm$html$Html$h1,
 				_List_Nil,
-				_Utils_ap(
-					A2(
-						$elm$core$List$map,
-						$author$project$Main$tableEntryFromQuestion,
-						A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, model.questions)),
-					_List_fromArray(
-						[
-							$author$project$Main$newQuestion(model)
-						])))
-			]));
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Fragenrandomizer')
+					])),
+			content)) : A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		A2(
+			$elm$core$List$cons,
+			A2(
+				$elm$html$Html$h1,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Fragenrandomizer')
+					])),
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$text('Die Datei hat leider nicht das richtige Format.'),
+				content)));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
