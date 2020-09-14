@@ -11,7 +11,7 @@ import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import Html exposing (Html, button, div, td, text, tr)
-import Html.Attributes
+import Html.Attributes exposing (attribute, class)
 import Html.Events exposing (onClick)
 import List exposing (filter, foldr, indexedMap, map)
 import Task
@@ -31,11 +31,17 @@ main =
 
 
 type alias Model =
-    { fileOk : Bool
+    { fileOk : UploadState
     , questions : List Question
     , deletedQuestions : List Question
     , newQuestion : String
     }
+
+
+type UploadState
+    = NoError
+    | Error
+    | NothingUploaded
 
 
 type alias Question =
@@ -44,7 +50,7 @@ type alias Question =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { questions = [], deletedQuestions = [], newQuestion = "", fileOk = True }, Cmd.none )
+    ( { questions = [], deletedQuestions = [], newQuestion = "", fileOk = NothingUploaded }, Cmd.none )
 
 
 
@@ -99,10 +105,10 @@ update msg model =
         StringFromSQLLoaded sql ->
             case splitList (String.lines sql) of
                 Ok ( toDelete, toInsert ) ->
-                    ( { model | fileOk = True, questions = map getQuestion toInsert, deletedQuestions = map getQuestion toDelete }, Cmd.none )
+                    ( { model | fileOk = NoError, questions = map getQuestion toInsert, deletedQuestions = map getQuestion toDelete }, Cmd.none )
 
                 Err _ ->
-                    ( { model | fileOk = False }, Cmd.none )
+                    ( { model | fileOk = Error }, Cmd.none )
 
 
 deleteElementFromQuestionList : Int -> List Question -> List Question
@@ -132,31 +138,50 @@ view : Model -> Html Msg
 view model =
     let
         content =
-            [ button [ onClick Download ] [ text "Download" ]
-            , button [ onClick Upload ] [ text "Upload" ]
-            , Html.table [] (map tableEntryFromQuestion (indexedMap Tuple.pair model.questions) ++ [ newQuestion model ])
+            [ div [ class "btn-toolbar" ]
+                [ button [ class "btn btn-secondary ml-2 mr-2", Html.Attributes.type_ "button", onClick Download ] [ text "Download File" ]
+                , button [ class "btn btn-secondary ml-2 mr-2", Html.Attributes.type_ "button", onClick Upload ] [ text "Upload File" ]
+                ]
+            , Html.table [ class "table table-striped" ] [ Html.tbody [] (map tableEntryFromQuestion (indexedMap Tuple.pair model.questions)) ]
+            , newQuestion model
             ]
+
+        title =
+            Html.h1 [] [ text "Fragenrandomizer" ]
+
+        status =
+            if model.fileOk == Error then
+                div [ class "alert alert-danger alert-dismissible fade show", attribute "role" "alert" ]
+                    [ text "Something went wrong. The File probably isn't formatted properly." ]
+
+            else if model.fileOk == NoError then
+                div [ class "alert alert-success alert-dismissible fade show", attribute "role" "alert" ]
+                    [ text "Upload successfull." ]
+
+            else
+                div [] []
     in
-    if model.fileOk == True then
-        div [] (Html.h1 [] [ text "Fragenrandomizer" ] :: content)
+    if model.fileOk == NothingUploaded then
+        div [] (title :: content)
 
     else
-        div [] (Html.h1 [] [ text "Fragenrandomizer" ] :: text "Die Datei hat leider nicht das richtige Format." :: content)
+        div [] (title :: status :: content)
 
 
 tableEntryFromQuestion : ( Int, Question ) -> Html Msg
 tableEntryFromQuestion ( number, question ) =
     tr []
         [ td [] [ text question ]
-        , button [ onClick (Delete number) ] [ text "Löschen" ]
+        , button [ class "btn btn-outline-danger float-right", Html.Attributes.type_ "button", onClick (Delete number) ] [ text "Löschen" ]
         ]
 
 
 newQuestion : Model -> Html Msg
 newQuestion model =
-    tr []
-        [ td [] [ Html.input [ Html.Attributes.placeholder "neue Frage", Html.Attributes.value model.newQuestion, Html.Events.onInput Change ] [] ]
-        , button [ onClick (Add model.newQuestion) ] [ text "Hinzufügen" ]
+    div [ class "input-group mb-3" ]
+        [ Html.input [ class "form-control", Html.Attributes.type_ "text", Html.Attributes.placeholder "neue Frage", Html.Attributes.value model.newQuestion, Html.Events.onInput Change ] []
+        , div [ class "button-group-append" ]
+            [ button [ class "btn btn-outline-success", Html.Attributes.type_ "button", onClick (Add model.newQuestion) ] [ text "Hinzufügen" ] ]
         ]
 
 
@@ -185,7 +210,7 @@ splitList lines =
             Ok ( List.take (Tuple.first tuple) lines, List.filter (String.contains "DELETE") (List.drop (Tuple.first tuple + 1) lines) )
 
         Nothing ->
-            Err "Falsches Format der Datei"
+            Err "Wrong file format"
 
 
 getQuestion : String -> String
