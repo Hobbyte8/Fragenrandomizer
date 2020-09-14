@@ -5322,11 +5322,12 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Main$NothingUploaded = {$: 'NothingUploaded'};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{deletedQuestions: _List_Nil, fileOk: true, newQuestion: '', questions: _List_Nil},
+		{deletedQuestions: _List_Nil, fileOk: $author$project$Main$NothingUploaded, newQuestion: '', questions: _List_Nil},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5334,6 +5335,8 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$Error = {$: 'Error'};
+var $author$project$Main$NoError = {$: 'NoError'};
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5605,7 +5608,7 @@ var $author$project$Main$splitList = function (lines) {
 					$elm$core$String$contains('DELETE'),
 					A2($elm$core$List$drop, tuple.a + 1, lines))));
 	} else {
-		return $elm$core$Result$Err('Falsches Format der Datei');
+		return $elm$core$Result$Err('Wrong file format');
 	}
 };
 var $author$project$Main$ToDelete = {$: 'ToDelete'};
@@ -5694,7 +5697,7 @@ var $author$project$Main$update = F2(
 							model,
 							{
 								deletedQuestions: A2($elm$core$List$map, $author$project$Main$getQuestion, toDelete),
-								fileOk: true,
+								fileOk: $author$project$Main$NoError,
 								questions: A2($elm$core$List$map, $author$project$Main$getQuestion, toInsert)
 							}),
 						$elm$core$Platform$Cmd$none);
@@ -5702,14 +5705,31 @@ var $author$project$Main$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{fileOk: false}),
+							{fileOk: $author$project$Main$Error}),
 						$elm$core$Platform$Cmd$none);
 				}
 		}
 	});
 var $author$project$Main$Download = {$: 'Download'};
 var $author$project$Main$Upload = {$: 'Upload'};
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$Main$Add = function (a) {
@@ -5769,51 +5789,52 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $elm$html$Html$td = _VirtualDom_node('td');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$html$Html$tr = _VirtualDom_node('tr');
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$newQuestion = function (model) {
 	return A2(
-		$elm$html$Html$tr,
-		_List_Nil,
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('input-group mb-3')
+			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$td,
-				_List_Nil,
+				$elm$html$Html$input,
 				_List_fromArray(
 					[
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$placeholder('neue Frage'),
-								$elm$html$Html$Attributes$value(model.newQuestion),
-								$elm$html$Html$Events$onInput($author$project$Main$Change)
-							]),
-						_List_Nil)
-					])),
+						$elm$html$Html$Attributes$class('form-control'),
+						$elm$html$Html$Attributes$type_('text'),
+						$elm$html$Html$Attributes$placeholder('neue Frage'),
+						$elm$html$Html$Attributes$value(model.newQuestion),
+						$elm$html$Html$Events$onInput($author$project$Main$Change)
+					]),
+				_List_Nil),
 				A2(
-				$elm$html$Html$button,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick(
-						$author$project$Main$Add(model.newQuestion))
+						$elm$html$Html$Attributes$class('button-group-append')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Hinzufügen')
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('btn btn-outline-success'),
+								$elm$html$Html$Attributes$type_('button'),
+								$elm$html$Html$Events$onClick(
+								$author$project$Main$Add(model.newQuestion))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Hinzufügen')
+							]))
 					]))
 			]));
 };
@@ -5821,6 +5842,8 @@ var $elm$html$Html$table = _VirtualDom_node('table');
 var $author$project$Main$Delete = function (a) {
 	return {$: 'Delete', a: a};
 };
+var $elm$html$Html$td = _VirtualDom_node('td');
+var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$Main$tableEntryFromQuestion = function (_v0) {
 	var number = _v0.a;
 	var question = _v0.b;
@@ -5840,6 +5863,8 @@ var $author$project$Main$tableEntryFromQuestion = function (_v0) {
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
+						$elm$html$Html$Attributes$class('btn btn-outline-danger float-right'),
+						$elm$html$Html$Attributes$type_('button'),
 						$elm$html$Html$Events$onClick(
 						$author$project$Main$Delete(number))
 					]),
@@ -5849,70 +5874,99 @@ var $author$project$Main$tableEntryFromQuestion = function (_v0) {
 					]))
 			]));
 };
+var $elm$html$Html$tbody = _VirtualDom_node('tbody');
 var $author$project$Main$view = function (model) {
+	var title = A2(
+		$elm$html$Html$h1,
+		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Fragenrandomizer')
+			]));
+	var status = _Utils_eq(model.fileOk, $author$project$Main$Error) ? A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('alert alert-danger alert-dismissible fade show'),
+				A2($elm$html$Html$Attributes$attribute, 'role', 'alert')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Something went wrong. The File probably isn\'t formatted properly.')
+			])) : (_Utils_eq(model.fileOk, $author$project$Main$NoError) ? A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('alert alert-success alert-dismissible fade show'),
+				A2($elm$html$Html$Attributes$attribute, 'role', 'alert')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Upload successfull.')
+			])) : A2($elm$html$Html$div, _List_Nil, _List_Nil));
 	var content = _List_fromArray(
 		[
 			A2(
-			$elm$html$Html$button,
+			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Events$onClick($author$project$Main$Download)
+					$elm$html$Html$Attributes$class('btn-toolbar')
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text('Download')
-				])),
-			A2(
-			$elm$html$Html$button,
-			_List_fromArray(
-				[
-					$elm$html$Html$Events$onClick($author$project$Main$Upload)
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('Upload')
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('btn btn-secondary ml-2 mr-2'),
+							$elm$html$Html$Attributes$type_('button'),
+							$elm$html$Html$Events$onClick($author$project$Main$Download)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Download File')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('btn btn-secondary ml-2 mr-2'),
+							$elm$html$Html$Attributes$type_('button'),
+							$elm$html$Html$Events$onClick($author$project$Main$Upload)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Upload File')
+						]))
 				])),
 			A2(
 			$elm$html$Html$table,
-			_List_Nil,
-			_Utils_ap(
-				A2(
-					$elm$core$List$map,
-					$author$project$Main$tableEntryFromQuestion,
-					A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, model.questions)),
-				_List_fromArray(
-					[
-						$author$project$Main$newQuestion(model)
-					])))
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('table table-striped')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$tbody,
+					_List_Nil,
+					A2(
+						$elm$core$List$map,
+						$author$project$Main$tableEntryFromQuestion,
+						A2($elm$core$List$indexedMap, $elm$core$Tuple$pair, model.questions)))
+				])),
+			$author$project$Main$newQuestion(model)
 		]);
-	return model.fileOk ? A2(
+	return _Utils_eq(model.fileOk, $author$project$Main$NothingUploaded) ? A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		A2($elm$core$List$cons, title, content)) : A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		A2(
 			$elm$core$List$cons,
-			A2(
-				$elm$html$Html$h1,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Fragenrandomizer')
-					])),
-			content)) : A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		A2(
-			$elm$core$List$cons,
-			A2(
-				$elm$html$Html$h1,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Fragenrandomizer')
-					])),
-			A2(
-				$elm$core$List$cons,
-				$elm$html$Html$text('Die Datei hat leider nicht das richtige Format.'),
-				content)));
+			title,
+			A2($elm$core$List$cons, status, content)));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
